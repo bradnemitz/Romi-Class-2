@@ -25,7 +25,8 @@ public class Robot extends TimedRobot {
   private final RomiDrivetrain m_drivetrain = new RomiDrivetrain();
 
   private final Joystick m_controller = new Joystick(0);
-  boolean inTankDrive = true;
+  boolean inTankDrive;
+  boolean usbIsForward;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -84,7 +85,8 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-    
+    inTankDrive = true;
+    usbIsForward = true;
   }
 
   /** This function is called periodically during operator control. */
@@ -103,30 +105,65 @@ public class Robot extends TimedRobot {
     /**ARCADE DRIVE CODE**/
     //double xaxisSpeed = m_controller.getRawAxis(1);
     //double zaxisRotate = m_controller.getRawAxis(3);
-    //m_drivetrain.arcadeDrive(.5*xaxisSpeed, .5*zaxisRotate); //.5 here is just to make controls less twitchy
+    //m_drivetrain.arcadeDrive(.5*xaxisSpeed, .5*z axisRotate); //.5 here is just to make controls less twitchy
     
 
     //HOMEWORK: When a button is pressed, change to tank drive, when anoother is pressed, change to arcade drive
+    //MORE HW: Extend state machien to allow fw/bk selection
+    double leftSpeed = m_controller.getRawAxis(1);
+    double rightSpeed = m_controller.getRawAxis(2);
+    
+    double xaxisSpeed = m_controller.getRawAxis(1);
+    double zaxisRotate = m_controller.getRawAxis(3);
 
-    if (inTankDrive){
+    SmartDashboard.putBoolean("inTankDrive", inTankDrive);
+    SmartDashboard.putBoolean("usbIsForward", usbIsForward);
+
+
+    if (inTankDrive && usbIsForward){
       //tank drive code
       //check for other button to set arcade drive
-      double leftSpeed = m_controller.getRawAxis(1);
-      double rightSpeed = m_controller.getRawAxis(2);
       m_drivetrain.tankDrive(.25*leftSpeed, .25*rightSpeed);    
       if(m_controller.getRawButton(8)){
         inTankDrive = false;
       }
-    } else {
+      if(m_controller.getRawButton(1)){
+        usbIsForward = false;
+      }
+    } else if(!inTankDrive && usbIsForward) {
       //arcade drive code
       //check for button to set tank drive
-      double xaxisSpeed = m_controller.getRawAxis(1);
-      double zaxisRotate = m_controller.getRawAxis(3);
       m_drivetrain.arcadeDrive(xaxisSpeed, zaxisRotate);
       if(m_controller.getRawButton(7)){
         inTankDrive = true;
       }
+      if(m_controller.getRawButton(1)){
+        usbIsForward = false;
+      }
+    } else if (inTankDrive && !usbIsForward){
+        //tank drive code
+        //check for other button to set arcade drive
+        m_drivetrain.tankDrive(-.25*leftSpeed, -.25*rightSpeed);    
+        if(m_controller.getRawButton(8)){
+          inTankDrive = false;
+        }
+        if(m_controller.getRawButton(4)){
+          usbIsForward = true;
+        }
+    } else if(!inTankDrive && !usbIsForward) {
+        //arcade drive code
+        //check for button to set tank drive
+        m_drivetrain.arcadeDrive(-xaxisSpeed, zaxisRotate);
+        if(m_controller.getRawButton(7)){
+          inTankDrive = true;
+        }
+        if(m_controller.getRawButton(4)){
+          usbIsForward = true;
+        }
+    } else {
+      m_drivetrain.arcadeDrive(0,0);
     }
+  
 
 
   }
