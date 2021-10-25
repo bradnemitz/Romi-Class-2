@@ -159,6 +159,7 @@ public class Robot extends TimedRobot {
     } else if (isButton8Pressed == true){
       inTriangleDrive = false;
       justStarted = false;
+      next_state = State.FORWARD_TANK;
     }
     
 
@@ -260,7 +261,7 @@ public class Robot extends TimedRobot {
         rightDistanceStart = m_drivetrain.getRightDistanceInch();
         next_state = State.TURN_LEFT;
       } else {
-        //next_state = State.IDLE;
+        //do nothing
       }
 
       //want to draw an equilateral triangle, pivoting on one wheel
@@ -278,7 +279,7 @@ public class Robot extends TimedRobot {
         driveCount++;
         next_state = State.DRIVE_FORWARD;
       } else {
-        //next_state = State.IDLE;
+        //do nothing
       }
 
         //routine done, exit triangle drive
